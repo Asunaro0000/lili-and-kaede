@@ -1,0 +1,238 @@
+:root{
+  --bg:#0b0e0f;
+  --panel:#0f1214;
+  --ink:#eaecec;
+  --shadow:rgba(0,0,0,.35);
+  --imgswap-duration: 1.5s;   /* ← ここを変えるだけでアニメ時間調整できる */
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:system-ui,"Noto Sans JP",sans-serif;
+}
+
+.stage{
+  position:fixed;
+  inset:0;
+  display:grid;
+  grid-template-rows:1fr auto;
+}
+
+#imageWrap{
+  position:relative;
+  overflow:hidden;
+  background:#000;
+  perspective:1200px; /* ← 追加：ページをめくるような奥行き用 */
+}
+
+
+
+#img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:50% 0%;
+}
+
+#cap{
+  padding:12px 14px;
+  text-align:center;
+  background:rgba(0,0,0,.5);
+  color:#fff;
+  font-size:18px;
+}
+
+#bottomTap{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  height:22%;
+  z-index:5;
+}
+
+/* Simplified NAV */
+#nav{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:-140px;
+  background:rgba(12,14,15,.96);
+  border-top:1px solid rgba(255,255,255,.08);
+  box-shadow:0 -16px 44px var(--shadow);
+  transition:bottom .22s ease;
+  padding:10px 12px;
+  display:grid;
+  gap:10px;
+}
+
+#nav.is-open{
+  bottom:0;
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.badge{
+  font-size:12px;
+  color:#cfd6d6;
+  background:rgba(0,0,0,.25);
+  padding:4px 8px;
+  border-radius:10px;
+}
+
+input[type="range"]{
+  appearance:none;
+  width:62vw;
+  max-width:460px;
+  height:14px;
+  border-radius:12px;
+  background:#1b2123;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+}
+
+button.icon{
+  appearance:none;
+  border:none;
+  background:#1b2123;
+  color:#e5ecec;
+  padding:8px 10px;
+  border-radius:12px;
+}
+
+button.icon:active{
+  transform:translateY(1px);
+}
+
+#vol{
+  width:38vw;
+  max-width:260px;
+}
+
+/* ------------------------------- */
+/*   ページめくり＋時間調整版     */
+/* ------------------------------- */
+.img-swap{
+  animation: imgSwap var(--imgswap-duration) cubic-bezier(0.16, 0.84, 0.32, 1);
+}
+
+/*
+   調整ポイント（必要ならここをいじるだけ）↓
+   - めくり角度（rotateY）
+   - ひらく方向（translateX） 
+   - ぼかし量（blur）
+   - 明るさ / 彩度
+*/
+@keyframes imgSwap {
+  0% {
+    opacity: 0;
+    transform:
+      translateX(26px)   /* ← めくり幅 */
+      rotateY(-14deg)    /* ← ページがめくれる角度 */
+      scale(1.06);
+    filter:
+      blur(12px)         /* ← 最初のぼかし */
+      brightness(1.18)
+      saturate(1.25);
+  }
+  45% {
+    opacity: 0.98;
+    transform:
+      translateX(0)
+      rotateY(0deg)
+      scale(1.0);
+    filter:
+      blur(0px)
+      brightness(1.05)
+      saturate(1.05);
+  }
+  80% {
+    opacity: 1;
+    transform:
+      translateX(0px)
+      rotateY(0deg)
+      scale(1.0);
+    filter: none;
+  }
+  100% {
+    opacity: 1;
+    transform:
+      translateX(0)
+      rotateY(0deg)
+      scale(1.0);
+    filter:none;
+  }
+}
+
+
+
+
+/* 動きを抑制する環境では無効化 */
+@media (prefers-reduced-motion:reduce){
+  .img-swap{
+    animation:none;
+  }
+}
+
+/* 章イントロ用「ページ」を挟むためのオーバーレイ */
+#chapterIntro{
+  position:fixed;
+  inset:0;
+  display:none;          /* デフォルト非表示 */
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  pointer-events:none;   /* is-visible のときだけ有効にする */
+  z-index:8;             /* nav・bottomTap より手前に出す */
+  background:rgba(0,0,0,.8); /* 画面全体を少し暗くする */
+}
+
+#chapterIntro.is-visible{
+  display:flex;
+  pointer-events:auto;
+}
+
+#chapterIntro .chapter-box{
+  max-width:720px;
+  width:100%;
+  background:rgba(8,9,10,.95);
+  border-radius:18px;
+  padding:16px 18px;
+  box-shadow:0 18px 40px rgba(0,0,0,.6);
+  text-align:left;
+}
+
+#chapterIntro .chapter-label{
+  font-size:25px;
+  letter-spacing:.04em;
+  opacity:.9;
+  margin-bottom:8px;
+}
+
+#chapterIntro p{
+  margin:4px 0;
+  font-size:20px;
+  line-height:1.6;
+}
+
+@media (max-width:480px){
+  #chapterIntro .chapter-box{
+    padding:14px 14px;
+    border-radius:14px;
+  }
+  #chapterIntro p{
+    font-size:13px;
+  }
+}
